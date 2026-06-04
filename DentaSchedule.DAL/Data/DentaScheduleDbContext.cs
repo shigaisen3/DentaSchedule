@@ -29,6 +29,20 @@ public class DentaScheduleDbContext : IdentityDbContext<AppUser, AppRole, string
         ConfigureAppointment(builder);
         ConfigureAppUser(builder);
         ConfigureRefreshToken(builder);
+
+        // Database-level guarantee against double-booking: at most one *approved*
+        // appointment may exist per doctor + start time. This is the final safety net
+        // for the race where two pending appointments for the same slot are approved
+        // concurrently. Relational-only (the in-memory provider used in tests does not
+        // support filtered indexes).
+        if (Database.IsRelational())
+        {
+            builder.Entity<Appointment>()
+                .HasIndex(a => new { a.DoctorId, a.AppointmentDateTime })
+                .HasFilter("[Status] = 'Approved'")
+                .IsUnique()
+                .HasDatabaseName("IX_Appointments_Doctor_Time_Approved");
+        }
     }
 
     private static void ConfigureClinic(ModelBuilder builder)

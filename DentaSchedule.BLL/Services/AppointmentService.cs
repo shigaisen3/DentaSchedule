@@ -9,6 +9,11 @@ namespace DentaSchedule.BLL.Services;
 
 public class AppointmentService : IAppointmentService
 {
+    private const string ConcurrencyMessage =
+        "This appointment was just modified by someone else. Please reload and try again.";
+    private const string SlotAlreadyApprovedMessage =
+        "Another appointment has already been approved for this time slot.";
+
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAppointmentNotificationService _notifications;
 
@@ -226,9 +231,27 @@ public class AppointmentService : IAppointmentService
         if (appointment.Status != AppointmentStatus.Pending)
             return ServiceResponse<Appointment>.FailureResult("Only pending appointments can be approved.");
 
+        // Re-check at approval time: a different pending appointment may already have been
+        // approved for an overlapping slot since this one was created.
+        if (await HasConflictAsync(appointment.DoctorId, appointment.AppointmentDateTime, appointment.DurationMinutes, appointment.Id))
+            return ServiceResponse<Appointment>.FailureResult(SlotAlreadyApprovedMessage);
+
         appointment.Status = AppointmentStatus.Approved;
         _unitOfWork.Appointments.Update(appointment);
-        await _unitOfWork.SaveChangesAsync();
+
+        try
+        {
+            await _unitOfWork.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return ServiceResponse<Appointment>.FailureResult(ConcurrencyMessage);
+        }
+        catch (DbUpdateException)
+        {
+            // Unique-index violation: a concurrent request approved this slot first.
+            return ServiceResponse<Appointment>.FailureResult(SlotAlreadyApprovedMessage);
+        }
 
         await _notifications.NotifyApprovedAsync(appointment);
 
@@ -247,7 +270,15 @@ public class AppointmentService : IAppointmentService
         appointment.Status = AppointmentStatus.Cancelled;
         appointment.CancellationReason = reason;
         _unitOfWork.Appointments.Update(appointment);
-        await _unitOfWork.SaveChangesAsync();
+
+        try
+        {
+            await _unitOfWork.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return ServiceResponse<Appointment>.FailureResult(ConcurrencyMessage);
+        }
 
         await _notifications.NotifyCancelledAsync(appointment);
 
@@ -278,7 +309,15 @@ public class AppointmentService : IAppointmentService
         appointment.AppointmentDateTime = newDateTime;
         appointment.Status = AppointmentStatus.Pending; // Reset to pending after reschedule
         _unitOfWork.Appointments.Update(appointment);
-        await _unitOfWork.SaveChangesAsync();
+
+        try
+        {
+            await _unitOfWork.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return ServiceResponse<Appointment>.FailureResult(ConcurrencyMessage);
+        }
 
         await _notifications.NotifyRescheduledAsync(appointment);
 
