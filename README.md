@@ -155,9 +155,9 @@ Seeded automatically on first run. **For development/demo only — change before
 | Admin     | `admin@dentaschedule.com`      | `Admin@123`     | All clinics      |
 | Assistant | `assistant1@dentaschedule.com` | `Assistant1@123`| Clinic 1         |
 | Assistant | `assistant2@dentaschedule.com` | `Assistant2@123`| Clinic 2         |
-| …         | `assistant{N}@dentaschedule.com` | `Assistant{N}@123` | Clinic N (N = 1–10) |
+| …         | `assistant{N}@dentaschedule.com` | `Assistant{N}@123` | Clinic N (N = 1–5) |
 
-The seed also creates 11 clinics, ~21 doctors, and Monday–Friday 09:00–17:00 schedules
+The seed also creates 6 clinics, 11 doctors, and Monday–Friday 09:00–17:00 schedules
 (30-minute slots) so the booking flow is usable immediately.
 
 ## Configuration
