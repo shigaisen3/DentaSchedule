@@ -1,0 +1,76 @@
+# ──────────────────────────────────────────────
+#  .NET / Visual Studio (backend)
+# ──────────────────────────────────────────────
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+out/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.idea/
+
+# Build/test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+TestResults/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+!packages/build/
+
+# Runtime logs produced by Serilog
+Logs/
+*.log
+
+# ──────────────────────────────────────────────
+#  Node / Vite / React (frontend)
+# ──────────────────────────────────────────────
+node_modules/
+dentaschedule-frontend/dist/
+dentaschedule-frontend/dist-ssr/
+.vite/
+*.local
+
+# npm/yarn/pnpm debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ──────────────────────────────────────────────
+#  Secrets / local configuration
+# ──────────────────────────────────────────────
+# User-secrets live outside the repo, but ignore any local override files
+appsettings.*.local.json
+.env
+.env.local
+.env.*.local
+
+# ──────────────────────────────────────────────
+#  Tooling (local, not part of the project)
+# ──────────────────────────────────────────────
+.claude/
+
+# ──────────────────────────────────────────────
+#  OS files
+# ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini

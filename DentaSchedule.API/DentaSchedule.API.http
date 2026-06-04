@@ -1,0 +1,6 @@
+@DentaSchedule.API_HostAddress = http://localhost:5014
+
+GET {{DentaSchedule.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
