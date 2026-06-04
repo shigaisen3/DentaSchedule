@@ -11,7 +11,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    https: true,
+    // HTTPS for the dev server is provided by the basicSsl() plugin above.
     proxy: {
       '/api': {
         target: 'https://localhost:7237',

@@ -1,5 +1,7 @@
 # DentaSchedule
 
+[![CI](https://github.com/shigaisen3/DentaSchedule/actions/workflows/ci.yml/badge.svg)](https://github.com/shigaisen3/DentaSchedule/actions/workflows/ci.yml)
+
 A full-stack dental clinic management and appointment-booking system, built as a
 university diploma project (licență). Patients book appointments online without an
 account; clinic staff manage clinics, doctors, schedules, and appointments through an
