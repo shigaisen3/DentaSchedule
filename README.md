@@ -241,15 +241,22 @@ The core algorithm lives in `DentaSchedule.BLL/Services/AppointmentService.cs`.
 doctor belongs to the chosen clinic, that the slot falls within working hours, and that it
 does not overlap an existing approved appointment (conflict detection).
 
+**Concurrency.** Two safeguards prevent double-booking under concurrent access:
+approval re-checks for a conflicting approved appointment, backed by a unique filtered
+index (`DoctorId`, `AppointmentDateTime` where `Status = 'Approved'`) as the database-level
+guarantee; and concurrent edits to the same appointment are detected via the `RowVersion`
+optimistic-concurrency token and reported back to the caller rather than failing silently.
+
 ## Testing
 
 ```powershell
 dotnet test DentaSchedule.Tests/DentaSchedule.Tests.csproj
 ```
 
-The suite (26 tests) covers the scheduling algorithm, the appointment lifecycle
-(create / approve / cancel / reschedule, including validation failures), and notification
-dispatch. Tests run against a real EF Core context backed by the in-memory provider, so
+The suite (32 tests) covers the scheduling algorithm, the appointment lifecycle
+(create / approve / cancel / reschedule, including validation failures), notification
+dispatch, and the concurrency safeguards (approval re-check and optimistic-concurrency
+handling). Tests run against a real EF Core context backed by the in-memory provider, so
 they exercise the actual query logic rather than mocks.
 
 ## Roadmap / future work
@@ -260,7 +267,6 @@ Candidate enhancements, roughly in priority order:
 - `Completed` / `NoShow` appointment statuses and reporting on them
 - SMS notifications (the email layer already abstracts the transport)
 - Background reminder jobs (e.g. 24 h before an appointment)
-- Optimistic-concurrency handling on booking (the `RowVersion` token already exists)
 - Rate limiting on the public booking endpoint
 - Frontend component/integration tests and a CI pipeline
 - Containerized deployment (Docker Compose: API + SQL Server + frontend)
