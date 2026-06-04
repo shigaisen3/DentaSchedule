@@ -77,6 +77,9 @@ The solution follows a three-layer architecture, each layer a separate C# projec
 └─────────────────────────────────────────────────────────┘
 ```
 
+> Design diagrams (architecture, ER, use-case, class, sequence) are in
+> [`docs/diagrams.md`](docs/diagrams.md) and render directly on GitHub.
+
 Key conventions:
 - The BLL never throws HTTP exceptions; it returns a `ServiceResponse<T>` carrying
   success/data/errors. Controllers translate that into HTTP responses.
