@@ -11,7 +11,12 @@ public static class SeedData
     public const string AssistantRole = "Assistant";
 
     public const string AdminEmail = "admin@dentaschedule.com";
-    public const string AdminDefaultPassword = "Admin@123";
+
+    /// <summary>
+    /// Development-only fallback used when <c>Seed:AdminPassword</c> is not configured.
+    /// In non-Development environments the caller must supply a real password.
+    /// </summary>
+    public const string DevDefaultAdminPassword = "Admin@123";
 
     // Fixed GUIDs so re-seeding is idempotent
     public static readonly Guid TestClinicId = new("11111111-0000-0000-0000-000000000001");
@@ -72,7 +77,7 @@ public static class SeedData
         ("SmileFirst Dental",     "Bd. Independenței 33, Craiova",     "0721 100 010", "contact@smilefirst.ro"),
     };
 
-    public static async Task InitializeAsync(IServiceProvider serviceProvider)
+    public static async Task InitializeAsync(IServiceProvider serviceProvider, string adminPassword)
     {
         var roleManager = serviceProvider.GetRequiredService<RoleManager<AppRole>>();
         var userManager = serviceProvider.GetRequiredService<UserManager<AppUser>>();
@@ -100,7 +105,7 @@ public static class SeedData
                 EmailConfirmed = true
             };
 
-            var result = await userManager.CreateAsync(adminUser, AdminDefaultPassword);
+            var result = await userManager.CreateAsync(adminUser, adminPassword);
             if (result.Succeeded)
             {
                 await userManager.AddToRoleAsync(adminUser, AdminRole);

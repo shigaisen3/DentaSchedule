@@ -47,7 +47,16 @@ builder.Services.AddIdentity<AppUser, AppRole>(options =>
 
 // ── JWT Authentication ──
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.UTF8.GetBytes(jwtSettings["Secret"]!);
+var jwtSecret = jwtSettings["Secret"];
+if (string.IsNullOrWhiteSpace(jwtSecret) || jwtSecret.Length < 32)
+{
+    throw new InvalidOperationException(
+        "Jwt:Secret is not configured (or is shorter than 32 characters). " +
+        "Set it via user-secrets in development " +
+        "(dotnet user-secrets set \"Jwt:Secret\" \"<random 32+ char value>\") " +
+        "or the Jwt__Secret environment variable in production.");
+}
+var key = Encoding.UTF8.GetBytes(jwtSecret);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -175,7 +184,18 @@ using (var scope = app.Services.CreateScope())
     {
         var context = services.GetRequiredService<DentaScheduleDbContext>();
         await context.Database.MigrateAsync();
-        await SeedData.InitializeAsync(services);
+
+        var adminPassword = builder.Configuration["Seed:AdminPassword"];
+        if (string.IsNullOrWhiteSpace(adminPassword))
+        {
+            if (!app.Environment.IsDevelopment())
+                throw new InvalidOperationException(
+                    "Seed:AdminPassword must be configured outside of Development " +
+                    "(set the Seed__AdminPassword environment variable).");
+            adminPassword = SeedData.DevDefaultAdminPassword;
+        }
+
+        await SeedData.InitializeAsync(services, adminPassword);
     }
     catch (Exception ex)
     {
